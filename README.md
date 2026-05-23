@@ -1,150 +1,234 @@
-🚂 Railway Reservation System
+# 🚆 Railway Reservation System
 
-A comprehensive, full-stack web application designed to facilitate online train ticket booking, passenger management, and administrative control over railway operations.
+A full-stack web application for booking train tickets online. Built as a 2nd-year BTech CSE project, it covers the complete reservation workflow — from searching trains to booking seats, making payments, and managing bookings through an admin dashboard.
 
-🚀 Features
+---
 
-Passenger (User) Features
+## 📋 Table of Contents
 
-Authentication: Secure user registration and login system.
+- [Project Description](#-project-description)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Folder Structure](#-folder-structure)
+- [Prerequisites](#-prerequisites)
+- [Database Setup](#-database-setup)
+- [Installation & Setup](#-installation--setup)
+- [Running the Application](#-running-the-application)
+- [Environment Variables](#-environment-variables)
 
-Train Search: Search for available trains between source and destination stations on specific dates.
+---
 
-Ticket Booking: Dynamic seat allocation system.
+## 📖 Project Description
 
-Waitlist Management: Automated waitlist handling and confirmation logic when trains are fully booked.
+The Railway Reservation System allows users to search for trains between stations, book tickets, choose seats, and make payments — all through a clean web interface. Admins can manage trains, view all bookings, and monitor the system through a dedicated dashboard.
 
-PNR Generation: Automatic generation of unique Passenger Name Record (PNR) numbers for confirmed tickets.
+---
 
-Booking History: View, track, and manage past and upcoming journeys in a dedicated dashboard.
+## ✨ Features
 
-Saved Passengers: Save passenger details for quicker checkouts in the future.
+### 👤 User
+- Register and log in securely (JWT-based authentication)
+- Search trains by source, destination, and date
+- View available seats and select preferred class
+- Book tickets with automatic seat allocation
+- Make payments for confirmed bookings
+- View and manage personal bookings (cancel, download)
+- Save frequent passenger details
 
-Payment Integration: Secure payment processing page for finalizing bookings.
+### 🛠️ Admin
+- Secure admin login
+- Add, update, and delete trains
+- View all bookings across the system
+- Monitor seat availability and waitlists
 
-Administrator Features
+---
 
-Admin Dashboard: Centralized control panel for administrative tasks.
+## 🛠️ Tech Stack
 
-Train Management: Create, update, modify routes, and manage train schedules.
+| Layer      | Technology                        |
+|------------|-----------------------------------|
+| Frontend   | React 18, Vite, Bootstrap 5       |
+| Backend    | Node.js, Express.js               |
+| Database   | Oracle SQL (Oracle XE 21c)        |
+| Auth       | JSON Web Tokens (JWT), bcryptjs   |
+| HTTP Client| Axios                             |
+| Styling    | Bootstrap 5, Bootstrap Icons      |
 
-Oversight: Monitor bookings and overall system usage.
+---
 
-🛠️ Tech Stack
+## 📁 Folder Structure
 
-Frontend: React.js (Bootstrapped with Vite), Context API for state management.
-
-Backend: Node.js, Express.js.
-
-Database: SQL (Schema provided in railway_setup.sql).
-
-Authentication: JWT (JSON Web Tokens) with secure middleware.
-
-📂 Project Structure
-
+```
 railway-reservation-system/
-├── backend/                  # Node.js / Express Backend
-│   ├── config/               # Database and environment configurations
-│   ├── controllers/          # Request handlers (admin, auth, booking, etc.)
-│   ├── middleware/           # Custom middlewares (auth, admin checks)
-│   ├── routes/               # API route definitions
-│   ├── scripts/              # DB testing and Admin creation scripts
-│   ├── utils/                # Helper functions (PNR generator, seat allocator, etc.)
-│   └── server.js             # Main backend entry point
-├── frontend/                 # React.js Frontend
-│   ├── public/               # Static assets
-│   ├── src/                  
-│   │   ├── components/       # Reusable UI components (Navbar, TrainCard, etc.)
-│   │   ├── context/          # React Context (AuthContext)
-│   │   ├── pages/            # Application pages (Home, Login, Booking, etc.)
-│   │   ├── services/         # API integration logic
-│   │   ├── App.jsx           # Main React component
-│   │   └── main.jsx          # Frontend entry point
-│   ├── index.html            
-│   └── vite.config.js        
-├── railway_setup.sql         # SQL script to initialize the database schema
-└── README.md                 # Project documentation
+│
+├── backend/
+│   ├── config/
+│   │   └── db.js                  # Oracle DB connection
+│   ├── controllers/
+│   │   ├── adminController.js
+│   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   ├── paymentController.js
+│   │   ├── trainController.js
+│   │   └── userController.js
+│   ├── middleware/
+│   │   ├── authMiddleware.js      # JWT verification
+│   │   └── adminMiddleware.js     # Admin role check
+│   ├── routes/
+│   │   ├── adminRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── bookingRoutes.js
+│   │   ├── paymentRoutes.js
+│   │   ├── trainRoutes.js
+│   │   └── userRoutes.js
+│   ├── utils/
+│   │   ├── generatePNR.js         # PNR number generator
+│   │   ├── seatAllocator.js       # Auto seat allocation logic
+│   │   └── waitlistManager.js     # Waitlist handling
+│   ├── scripts/
+│   │   ├── createAdmin.js         # Script to seed admin user
+│   │   └── testDb.js              # Script to test DB connection
+│   ├── server.js                  # Express app entry point
+│   ├── .env                       # Environment variables
+│   └── package.json
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── TrainCard.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── LoadingSpinner.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx    # Global auth state
+│   │   ├── pages/
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── SearchResultsPage.jsx
+│   │   │   ├── BookingPage.jsx
+│   │   │   ├── PaymentPage.jsx
+│   │   │   ├── MyBookingsPage.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── SavedPassengersPage.jsx
+│   │   │   ├── AdminDashboardPage.jsx
+│   │   │   └── NotFoundPage.jsx
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   └── package.json
+│
+└── README.md
+```
 
+---
 
-⚙️ Local Development Setup
+## ✅ Prerequisites
 
-Follow these steps to get the project up and running on your local machine.
+Make sure the following are installed on your system before getting started:
 
-Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or above)
+- [Oracle Database XE 21c](https://www.oracle.com/database/technologies/xe-downloads.html)
+- [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html) (required by `oracledb` Node.js driver)
+- npm (comes with Node.js)
+- Git
 
-Node.js (v16 or higher)
+---
 
-A running SQL database server (MySQL/PostgreSQL depending on your specific DB driver in backend/config/db.js)
+## 🗄️ Database Setup
 
-Git
+1. Install and start **Oracle XE 21c**.
 
-1. Database Setup
+2. Connect to your Oracle database using SQL*Plus or SQL Developer:
+   ```
+   Username: system
+   Password: <your password>
+   Connect String: localhost:1521/XEPDB1
+   ```
 
-Open your SQL client.
+3. Run the SQL scripts to create the required tables (users, trains, bookings, payments, etc.). If a `schema.sql` file is provided in the project, run it:
+   ```sql
+   @path/to/schema.sql
+   ```
 
-Create a new database for the project.
+4. Seed the admin user by running the script from the backend folder:
+   ```bash
+   node scripts/createAdmin.js
+   ```
 
-Run the provided railway_setup.sql script to create the necessary tables and relationships.
+---
 
-2. Backend Setup
+## ⚙️ Installation & Setup
 
-Navigate to the backend directory:
+### 1. Clone the Repository
 
+```bash
+git clone https://github.com/your-username/railway-reservation-system.git
+cd railway-reservation-system
+```
+
+### 2. Backend Setup
+
+```bash
 cd backend
-
-
-Install dependencies:
-
 npm install
+```
 
+Create a `.env` file inside the `backend/` folder with the following content:
 
-Create a .env file in the backend directory and configure your environment variables (e.g., Database credentials, JWT Secret, Port):
-
+```env
 PORT=5000
-DB_HOST=localhost
-DB_USER=your_db_username
-DB_PASSWORD=your_db_password
-DB_NAME=your_database_name
-JWT_SECRET=your_super_secret_jwt_key
+DB_USER=system
+DB_PASSWORD=your_oracle_password
+DB_CONNECT_STRING=localhost:1521/XEPDB1
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=7d
+```
 
+### 3. Frontend Setup
 
-Run the setup script to create an initial admin account:
-
-node scripts/createAdmin.js
-
-
-Start the backend server:
-
-npm start
-# or npm run dev for nodemon
-
-
-3. Frontend Setup
-
-Open a new terminal and navigate to the frontend directory:
-
-cd frontend
-
-
-Install dependencies:
-
+```bash
+cd ../frontend
 npm install
+```
 
+---
 
-Create a .env file in the frontend directory for API configuration:
+## ▶️ Running the Application
 
-VITE_API_URL=http://localhost:5000/api
+### Start the Backend
 
-
-Start the frontend development server:
-
+```bash
+cd backend
 npm run dev
+```
 
+The backend server will start at: `http://localhost:5000`
 
-🛡️ Security
+> For production: `npm start`
 
-Passwords are fundamentally encrypted before being stored in the database.
+### Start the Frontend
 
-API endpoints are protected using JWT Authentication.
+```bash
+cd frontend
+npm run dev
+```
 
-Role-based access control (RBAC) ensures only admins can access administrative routes (adminMiddleware.js).
+The frontend will be available at: `http://localhost:5173`
+
+> Open this URL in your browser to use the application.
+
+---
+
+## 🔐 Environment Variables
+
+| Variable           | Description                          | Example                  |
+|--------------------|--------------------------------------|--------------------------|
+| `PORT`             | Port for the backend server          | `5000`                   |
+| `DB_USER`          | Oracle database username             | `system`                 |
+| `DB_PASSWORD`      | Oracle database password             | `your_password`          |
+| `DB_CONNECT_STRING`| Oracle connection string             | `localhost:1521/XEPDB1`  |
+| `JWT_SECRET`       | Secret key for signing JWT tokens    | `your_secret_key`        |
+| `JWT_EXPIRES_IN`   | JWT token expiry duration            | `7d`                     |
+
+---
