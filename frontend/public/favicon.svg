@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#0a2d6e"/>
+
+  <!-- Train body -->
+  <rect x="6" y="10" width="20" height="11" rx="3" ry="3" fill="white"/>
+
+  <!-- Train front window -->
+  <rect x="18" y="12" width="5" height="4" rx="1" fill="#0a2d6e"/>
+
+  <!-- Train side window -->
+  <rect x="10" y="12" width="5" height="4" rx="1" fill="#0a2d6e"/>
+
+  <!-- Orange accent stripe -->
+  <rect x="6" y="17" width="20" height="2" fill="#e8600a"/>
+
+  <!-- Left wheel -->
+  <circle cx="10" cy="23" r="2.5" fill="#e8600a"/>
+  <circle cx="10" cy="23" r="1" fill="white"/>
+
+  <!-- Right wheel -->
+  <circle cx="22" cy="23" r="2.5" fill="#e8600a"/>
+  <circle cx="22" cy="23" r="1" fill="white"/>
+
+  <!-- Middle wheel -->
+  <circle cx="16" cy="23" r="2.5" fill="#e8600a"/>
+  <circle cx="16" cy="23" r="1" fill="white"/>
+
+  <!-- Train front bumper -->
+  <rect x="24" y="18" width="3" height="2" rx="1" fill="#e8600a"/>
+
+  <!-- Chimney / light on top -->
+  <rect x="14" y="7" width="4" height="3" rx="1" fill="white"/>
+</svg>

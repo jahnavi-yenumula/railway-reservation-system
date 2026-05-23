@@ -1,0 +1,278 @@
+/* Global Styles - Railway Reservation System */
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* ===== NAVBAR ===== */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark {
+  background-color: #0a2d6e !important;
+}
+
+/* ===== BUTTONS ===== */
+.btn-orange {
+  background-color: #e8600a;
+  color: white;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-orange:hover {
+  background-color: #c9520a;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #0a2d6e;
+  border-color: #0a2d6e;
+}
+
+.btn-primary:hover {
+  background-color: #082358;
+  border-color: #082358;
+}
+
+/* ===== CARDS ===== */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+  background: linear-gradient(135deg, #0a2d6e 0%, #1a4fa0 100%);
+  color: white;
+  padding: 80px 0 60px;
+}
+
+.hero-section h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+}
+
+/* ===== SEARCH FORM ===== */
+.search-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== TRAIN CARD ===== */
+.train-card {
+  border-left: 4px solid #0a2d6e;
+}
+
+.train-card .train-number {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.train-card .train-name {
+  font-weight: 600;
+  color: #0a2d6e;
+  font-size: 1.1rem;
+}
+
+.train-card .time-display {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.train-card .station-name {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* ===== TICKET STYLES ===== */
+.ticket-container {
+  border: 2px dashed #0a2d6e;
+  border-radius: 12px;
+  background: white;
+}
+
+.ticket-header {
+  background-color: #0a2d6e;
+  color: white;
+  border-radius: 10px 10px 0 0;
+  padding: 16px 24px;
+}
+
+.ticket-pnr {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #e8600a;
+}
+
+/* ===== STATUS BADGES ===== */
+.badge-cnf {
+  background-color: #198754;
+  color: white;
+}
+
+.badge-wl {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge-can {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* ===== STATS CARDS ===== */
+.stat-card {
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-card p {
+  margin: 4px 0 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background-color: #0a2d6e;
+  color: #cdd8f0;
+  padding: 40px 0 20px;
+}
+
+.footer h6 {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.footer a {
+  color: #cdd8f0;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer a:hover {
+  color: #e8600a;
+}
+
+/* ===== LOADING SPINNER ===== */
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* ===== FORM STYLES ===== */
+.form-control:focus,
+.form-select:focus {
+  border-color: #0a2d6e;
+  box-shadow: 0 0 0 0.2rem rgba(10, 45, 110, 0.15);
+}
+
+/* ===== ADMIN SIDEBAR ===== */
+.admin-sidebar {
+  background-color: #0a2d6e;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.admin-sidebar .nav-link {
+  color: #cdd8f0;
+  padding: 10px 20px;
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.admin-sidebar .nav-link:hover,
+.admin-sidebar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* ===== ROUTE TIMELINE ===== */
+.route-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.route-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background-color: #0a2d6e;
+}
+
+.route-stop {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.route-stop::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #0a2d6e;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px #0a2d6e;
+}
+
+/* ===== DARK MODE ===== */
+[data-theme='dark'] body {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .card {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .table {
+  color: #e0e0e0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 1.8rem;
+  }
+
+  .train-card .time-display {
+    font-size: 1.1rem;
+  }
+}
