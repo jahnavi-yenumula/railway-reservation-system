@@ -146,7 +146,7 @@ Open a terminal and run:
 docker run -d \
   --name oracle-xe \
   -p 1521:1521 \
-  -e ORACLE_PWD=Password123 \
+  -e ORACLE_PWD=your_db_password \
   container-registry.oracle.com/database/express:21.3.0-xe
 ```
 
@@ -169,7 +169,7 @@ Then press `Ctrl+C` to stop watching logs.
 ### Step 3 — Verify the connection (optional)
 
 ```bash
-docker exec -it oracle-xe sqlplus system/Password123@localhost:1521/XEPDB1
+docker exec -it oracle-xe sqlplus system/your_db_password@localhost:1521/XEPDB1
 ```
 
 If you see a `SQL>` prompt, the database is up and running.
@@ -213,7 +213,7 @@ Create a `.env` file inside the `backend/` folder:
 ```env
 PORT=5000
 DB_USER=system
-DB_PASSWORD=Password123
+DB_PASSWORD=your_db_password
 DB_CONNECT_STRING=localhost:1521/XEPDB1
 JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRES_IN=7d
@@ -261,12 +261,12 @@ npm run dev
 Expected output:
 ```
 VITE v5.x.x  ready
-➜  Local:   http://localhost:5173/
+➜  Local:   http://localhost:3000/
 ```
 
 ### Open in Browser
 
-Visit: **http://localhost:5173**
+Visit: **http://localhost:3000**
 
 ---
 
@@ -276,7 +276,7 @@ Visit: **http://localhost:5173**
 |---------------------|------------------------------------|-------------------------|
 | `PORT`              | Port for the backend server        | `5000`                  |
 | `DB_USER`           | Oracle database username           | `system`                |
-| `DB_PASSWORD`       | Oracle database password           | `Password123`           |
+| `DB_PASSWORD`       | Oracle database password           | `your_db_password`      |
 | `DB_CONNECT_STRING` | Oracle connection string           | `localhost:1521/XEPDB1` |
 | `JWT_SECRET`        | Secret key for signing JWT tokens  | `your_secret_key`       |
 | `JWT_EXPIRES_IN`    | JWT token expiry duration          | `7d`                    |
@@ -293,14 +293,3 @@ Visit: **http://localhost:5173**
 | `Docker not found` | Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and make sure it's running |
 
 ---
-
-## 👨‍💻 Author
-
-**Y. Thanush Reddy**  
-2nd Year BTech CSE
-
----
-
-## 📄 License
-
-This project is built for academic purposes.
