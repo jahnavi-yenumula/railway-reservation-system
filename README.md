@@ -45,14 +45,14 @@ The Railway Reservation System allows users to search for trains between station
 
 ## 🛠️ Tech Stack
 
-| Layer      | Technology                        |
-|------------|-----------------------------------|
-| Frontend   | React 18, Vite, Bootstrap 5       |
-| Backend    | Node.js, Express.js               |
-| Database   | Oracle SQL (Oracle XE 21c)        |
-| Auth       | JSON Web Tokens (JWT), bcryptjs   |
-| HTTP Client| Axios                             |
-| Styling    | Bootstrap 5, Bootstrap Icons      |
+| Layer       | Technology                          |
+|-------------|-------------------------------------|
+| Frontend    | React 18, Vite, Bootstrap 5         |
+| Backend     | Node.js, Express.js                 |
+| Database    | Oracle SQL (via Docker)             |
+| Auth        | JSON Web Tokens (JWT), bcryptjs     |
+| HTTP Client | Axios                               |
+| Styling     | Bootstrap 5, Bootstrap Icons        |
 
 ---
 
@@ -125,36 +125,70 @@ railway-reservation-system/
 
 ## ✅ Prerequisites
 
-Make sure the following are installed on your system before getting started:
+Install the following before getting started:
 
-- [Node.js](https://nodejs.org/) (v18 or above)
-- [Oracle Database XE 21c](https://www.oracle.com/database/technologies/xe-downloads.html)
-- [Oracle Instant Client](https://www.oracle.com/database/technologies/instant-client/downloads.html) (required by `oracledb` Node.js driver)
-- npm (comes with Node.js)
-- Git
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) — to run Oracle Database (no Oracle installation needed)
+- [Node.js v18+](https://nodejs.org/) — for backend and frontend
+- npm — comes bundled with Node.js
+- Git — to clone the repository
+
+> ⚠️ You do **not** need to install Oracle XE separately. Docker handles it entirely.
 
 ---
 
-## 🗄️ Database Setup
+## 🗄️ Database Setup (Docker)
 
-1. Install and start **Oracle XE 21c**.
+### Step 1 — Pull and start Oracle XE container
 
-2. Connect to your Oracle database using SQL*Plus or SQL Developer:
-   ```
-   Username: system
-   Password: <your password>
-   Connect String: localhost:1521/XEPDB1
-   ```
+Open a terminal and run:
 
-3. Run the SQL scripts to create the required tables (users, trains, bookings, payments, etc.). If a `schema.sql` file is provided in the project, run it:
-   ```sql
-   @path/to/schema.sql
-   ```
+```bash
+docker run -d \
+  --name oracle-xe \
+  -p 1521:1521 \
+  -e ORACLE_PWD=Password123 \
+  container-registry.oracle.com/database/express:21.3.0-xe
+```
 
-4. Seed the admin user by running the script from the backend folder:
-   ```bash
-   node scripts/createAdmin.js
-   ```
+> On Windows CMD, replace the `\` line continuations with `^` or just run it as one line.
+
+### Step 2 — Wait for Oracle to be ready
+
+```bash
+docker logs -f oracle-xe
+```
+
+Wait until you see:
+
+```
+DATABASE IS READY TO USE!
+```
+
+Then press `Ctrl+C` to stop watching logs.
+
+### Step 3 — Verify the connection (optional)
+
+```bash
+docker exec -it oracle-xe sqlplus system/Password123@localhost:1521/XEPDB1
+```
+
+If you see a `SQL>` prompt, the database is up and running.
+
+### Step 4 — Seed the admin user
+
+From the `backend/` folder, run:
+
+```bash
+node scripts/createAdmin.js
+```
+
+### Future starts (after first setup)
+
+You don't need to re-create the container. Just start it with:
+
+```bash
+docker start oracle-xe
+```
 
 ---
 
@@ -174,12 +208,12 @@ cd backend
 npm install
 ```
 
-Create a `.env` file inside the `backend/` folder with the following content:
+Create a `.env` file inside the `backend/` folder:
 
 ```env
 PORT=5000
 DB_USER=system
-DB_PASSWORD=your_oracle_password
+DB_PASSWORD=Password123
 DB_CONNECT_STRING=localhost:1521/XEPDB1
 JWT_SECRET=your_jwt_secret_key
 JWT_EXPIRES_IN=7d
@@ -196,39 +230,77 @@ npm install
 
 ## ▶️ Running the Application
 
-### Start the Backend
+You need **three things running** at the same time — Oracle (Docker), the backend, and the frontend.
+
+### Terminal 1 — Start Oracle Database
+
+```bash
+docker start oracle-xe
+```
+
+### Terminal 2 — Start the Backend
 
 ```bash
 cd backend
 npm run dev
 ```
 
-The backend server will start at: `http://localhost:5000`
+Expected output:
+```
+Server running on port 5000
+Oracle DB connected successfully
+```
 
-> For production: `npm start`
-
-### Start the Frontend
+### Terminal 3 — Start the Frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-The frontend will be available at: `http://localhost:5173`
+Expected output:
+```
+VITE v5.x.x  ready
+➜  Local:   http://localhost:5173/
+```
 
-> Open this URL in your browser to use the application.
+### Open in Browser
+
+Visit: **http://localhost:5173**
 
 ---
 
 ## 🔐 Environment Variables
 
-| Variable           | Description                          | Example                  |
-|--------------------|--------------------------------------|--------------------------|
-| `PORT`             | Port for the backend server          | `5000`                   |
-| `DB_USER`          | Oracle database username             | `system`                 |
-| `DB_PASSWORD`      | Oracle database password             | `your_password`          |
-| `DB_CONNECT_STRING`| Oracle connection string             | `localhost:1521/XEPDB1`  |
-| `JWT_SECRET`       | Secret key for signing JWT tokens    | `your_secret_key`        |
-| `JWT_EXPIRES_IN`   | JWT token expiry duration            | `7d`                     |
+| Variable            | Description                        | Example                 |
+|---------------------|------------------------------------|-------------------------|
+| `PORT`              | Port for the backend server        | `5000`                  |
+| `DB_USER`           | Oracle database username           | `system`                |
+| `DB_PASSWORD`       | Oracle database password           | `Password123`           |
+| `DB_CONNECT_STRING` | Oracle connection string           | `localhost:1521/XEPDB1` |
+| `JWT_SECRET`        | Secret key for signing JWT tokens  | `your_secret_key`       |
+| `JWT_EXPIRES_IN`    | JWT token expiry duration          | `7d`                    |
 
 ---
+
+## ❗ Common Errors
+
+| Error | Fix |
+|-------|-----|
+| `ORA-12541: No listener` | Run `docker start oracle-xe` and wait for it to be ready |
+| `Cannot find module` | Run `npm install` inside the failing folder |
+| `Port 5000 already in use` | Change `PORT` in `.env` or kill the process using that port |
+| `Docker not found` | Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and make sure it's running |
+
+---
+
+## 👨‍💻 Author
+
+**Y. Thanush Reddy**  
+2nd Year BTech CSE
+
+---
+
+## 📄 License
+
+This project is built for academic purposes.

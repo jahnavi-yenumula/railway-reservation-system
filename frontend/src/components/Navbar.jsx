@@ -96,7 +96,7 @@ const Navbar = () => {
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i>Logout
+                      <i className="bi bi-box-arrow-right me-2"></i>Sign Out
                     </button>
                   </li>
                 </ul>
