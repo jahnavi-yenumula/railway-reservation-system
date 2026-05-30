@@ -129,6 +129,7 @@ const TicketPage = () => {
                   <th>Coach</th>
                   <th>Seat</th>
                   <th>Class</th>
+                  <th>Berth</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -140,7 +141,8 @@ const TicketPage = () => {
                     <td>{t.PASSENGER_AGE}</td>
                     <td>{t.COACH_LABEL}</td>
                     <td>{t.SEAT_NUM || (t.STATUS === 'WL' ? `WL/${t.WL_NUMBER}` : '-')}</td>
-                    <td>{t.CLASS_TYPE}</td>
+                    <td>{t.CLASS_CODE} — {t.CLASS_NAME}</td>
+                    <td>{t.ALLOCATED_BERTH || '-'}</td>
                     <td>{getStatusBadge(t.STATUS)}</td>
                   </tr>
                 ))}
@@ -155,7 +157,7 @@ const TicketPage = () => {
             <div className="col-md-6">
               <div className="mb-2">
                 <span className="text-muted me-2">Booking Status:</span>
-                <span className={`badge ${booking.BOOKING_STATUS === 'Confirmed' ? 'bg-success' : booking.BOOKING_STATUS === 'Cancelled' ? 'bg-danger' : 'bg-warning text-dark'}`}>
+                <span className={`badge ${booking.BOOKING_STATUS === 'Booked' ? 'bg-success' : booking.BOOKING_STATUS === 'Cancelled' ? 'bg-danger' : 'bg-warning text-dark'}`}>
                   {booking.BOOKING_STATUS}
                 </span>
               </div>

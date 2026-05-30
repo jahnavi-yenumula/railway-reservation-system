@@ -4,7 +4,9 @@ const {
   addTrain,
   addStation,
   addRoute,
-  addCoach,
+  addCoachClass,
+  addTrainComposition,
+  getCoachClasses,
   getAllBookings,
   getAllUsers,
   getStats,
@@ -18,7 +20,9 @@ router.use(authMiddleware, adminMiddleware);
 router.post('/train', addTrain);
 router.post('/station', addStation);
 router.post('/route', addRoute);
-router.post('/coach', addCoach);
+router.post('/coach-class', addCoachClass);          // replaces /coach
+router.post('/train-composition', addTrainComposition); // new: assign coach to run date
+router.get('/coach-classes', getCoachClasses);
 router.get('/bookings', getAllBookings);
 router.get('/users', getAllUsers);
 router.get('/stats', getStats);

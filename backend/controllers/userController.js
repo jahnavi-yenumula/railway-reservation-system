@@ -26,6 +26,10 @@ const addSavedPassenger = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Name, age, and gender are required.' });
   }
 
+  // Validate berth code against schema constraint
+  const validBerths = ['LB', 'MB', 'UB', 'SL', 'SU', 'WS'];
+  const berth = preferred_berth && validBerths.includes(preferred_berth) ? preferred_berth : null;
+
   try {
     await executeQuery(
       `INSERT INTO master_passengers (user_id, name, age, gender, preferred_berth)
@@ -35,7 +39,7 @@ const addSavedPassenger = async (req, res) => {
         passName: name,
         passAge: age,
         passGender: gender,
-        prefBerth: preferred_berth || null,
+        prefBerth: berth,
       }
     );
     res.status(201).json({ success: true, message: 'Passenger saved successfully.' });
@@ -51,6 +55,10 @@ const updateSavedPassenger = async (req, res) => {
   const { id } = req.params;
   const { name, age, gender, preferred_berth } = req.body;
 
+  // Validate berth code against schema constraint
+  const validBerths = ['LB', 'MB', 'UB', 'SL', 'SU', 'WS'];
+  const berth = preferred_berth && validBerths.includes(preferred_berth) ? preferred_berth : null;
+
   try {
     const result = await executeQuery(
       `UPDATE master_passengers
@@ -60,7 +68,7 @@ const updateSavedPassenger = async (req, res) => {
         passName: name,
         passAge: age,
         passGender: gender,
-        prefBerth: preferred_berth || null,
+        prefBerth: berth,
         passId: id,
         userId,
       }

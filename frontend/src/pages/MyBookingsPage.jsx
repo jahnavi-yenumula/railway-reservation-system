@@ -44,11 +44,11 @@ const MyBookingsPage = () => {
   }
 
   const getStatusBadge = (status) => {
+    // Schema v3.0 booking status values: 'Booked', 'Cancelled', 'Partially_Cancelled'
     const map = {
-      Confirmed: 'bg-success',
-      Waitlisted: 'bg-warning text-dark',
+      Booked: 'bg-success',
       Cancelled: 'bg-danger',
-      Pending: 'bg-secondary',
+      Partially_Cancelled: 'bg-warning text-dark',
     }
     return <span className={`badge ${map[status] || 'bg-secondary'}`}>{status}</span>
   }

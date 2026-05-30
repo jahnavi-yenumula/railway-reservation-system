@@ -1,4 +1,7 @@
 // Payment Controller - Process dummy payments
+// Updated for schema v3.0:
+//   - payment_method constraint: 'UPI', 'Credit Card', 'Debit Card', 'Net Banking', 'Wallet'
+//   - booking status is 'Booked' (not 'Pending'/'Confirmed')
 const { executeQuery } = require('../config/db');
 
 // POST /api/payments/pay
@@ -9,8 +12,17 @@ const processPayment = async (req, res) => {
     return res.status(400).json({ success: false, message: 'PNR, payment method, and amount are required.' });
   }
 
+  // Validate payment method against schema constraint
+  const validMethods = ['UPI', 'Credit Card', 'Debit Card', 'Net Banking', 'Wallet'];
+  if (!validMethods.includes(paymentMethod)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid payment method. Must be one of: ${validMethods.join(', ')}`,
+    });
+  }
+
   try {
-    // Check if booking exists and is pending
+    // Check if booking exists
     const bookingResult = await executeQuery(
       'SELECT * FROM bookings WHERE pnr_10 = :pnr',
       { pnr }
@@ -38,12 +50,6 @@ const processPayment = async (req, res) => {
       `INSERT INTO payments (trans_id, pnr_10, amount, payment_status, payment_method)
        VALUES (:transId, :pnr, :amount, 'Success', :paymentMethod)`,
       { transId, pnr, amount, paymentMethod }
-    );
-
-    // Update booking status to Confirmed after payment
-    await executeQuery(
-      `UPDATE bookings SET status = 'Confirmed' WHERE pnr_10 = :pnr AND status = 'Pending'`,
-      { pnr }
     );
 
     res.json({

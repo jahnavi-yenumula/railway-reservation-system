@@ -1,4 +1,5 @@
 // Axios API Service - all backend calls go through here
+// Updated for schema v3.0: coach_classes + train_composition replace coaches
 import axios from 'axios'
 
 const API = axios.create({
@@ -39,6 +40,7 @@ export const authAPI = {
 export const trainAPI = {
   search: (from, to, date) => API.get(`/trains/search?from=${from}&to=${to}&date=${date}`),
   getDetails: (trainNo) => API.get(`/trains/${trainNo}`),
+  getCoachesForDate: (trainNo, date) => API.get(`/trains/${trainNo}/coaches?date=${date}`),
   getAll: () => API.get('/trains'),
   getStations: () => API.get('/trains/stations'),
 }
@@ -71,7 +73,9 @@ export const adminAPI = {
   addTrain: (data) => API.post('/admin/train', data),
   addStation: (data) => API.post('/admin/station', data),
   addRoute: (data) => API.post('/admin/route', data),
-  addCoach: (data) => API.post('/admin/coach', data),
+  addCoachClass: (data) => API.post('/admin/coach-class', data),         // replaces addCoach
+  addTrainComposition: (data) => API.post('/admin/train-composition', data), // new
+  getCoachClasses: () => API.get('/admin/coach-classes'),                // new
   getAllBookings: () => API.get('/admin/bookings'),
   getAllUsers: () => API.get('/admin/users'),
   getStats: () => API.get('/admin/stats'),

@@ -1,4 +1,10 @@
 // Admin Dashboard Page
+// Updated for schema v3.0:
+//   - "Add Coach" replaced by "Add Coach Class" + "Add Train Composition"
+//   - Station form now includes 'state' field
+//   - Train form now includes 'active_days' field
+//   - Route times are now integers (minutes since midnight, 0-1439)
+//   - Bookings table shows source/destination station codes and quota
 import React, { useState, useEffect } from 'react'
 import { adminAPI } from '../services/api'
 import { toast } from 'react-toastify'
@@ -9,18 +15,21 @@ const AdminDashboardPage = () => {
   const [stats, setStats] = useState(null)
   const [bookings, setBookings] = useState([])
   const [users, setUsers] = useState([])
+  const [coachClasses, setCoachClasses] = useState([])
   const [loading, setLoading] = useState(false)
 
   // Forms
-  const [trainForm, setTrainForm] = useState({ train_no: '', train_name: '', train_type: 'Express' })
-  const [stationForm, setStationForm] = useState({ stn_code: '', city: '', stn_name: '' })
-  const [coachForm, setCoachForm] = useState({ train_no: '', coach_label: '', class_type: 'AC 3-Tier', total_seats: 72 })
+  const [trainForm, setTrainForm] = useState({ train_no: '', train_name: '', train_type: 'Express', active_days: '1111111' })
+  const [stationForm, setStationForm] = useState({ stn_code: '', city: '', stn_name: '', state: '' })
+  const [coachClassForm, setCoachClassForm] = useState({ class_code: '', class_name: '', total_seats: 72, base_fare_multiplier: 1.70 })
+  const [compositionForm, setCompositionForm] = useState({ train_no: '', run_date: '', coach_label: '', class_code: '' })
   const [routeForm, setRouteForm] = useState({ train_no: '', stn_code: '', arrival_time: '', depart_time: '', sequence_num: '', distance_from_source: 0 })
 
   useEffect(() => {
     if (activeTab === 'stats') fetchStats()
     if (activeTab === 'bookings') fetchBookings()
     if (activeTab === 'users') fetchUsers()
+    if (activeTab === 'addComposition') fetchCoachClasses()
   }, [activeTab])
 
   const fetchStats = async () => {
@@ -59,12 +68,21 @@ const AdminDashboardPage = () => {
     }
   }
 
+  const fetchCoachClasses = async () => {
+    try {
+      const res = await adminAPI.getCoachClasses()
+      setCoachClasses(res.data.coachClasses || [])
+    } catch (err) {
+      // silently fail
+    }
+  }
+
   const handleAddTrain = async (e) => {
     e.preventDefault()
     try {
       await adminAPI.addTrain(trainForm)
       toast.success('Train added successfully')
-      setTrainForm({ train_no: '', train_name: '', train_type: 'Express' })
+      setTrainForm({ train_no: '', train_name: '', train_type: 'Express', active_days: '1111111' })
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error adding train')
     }
@@ -75,19 +93,31 @@ const AdminDashboardPage = () => {
     try {
       await adminAPI.addStation(stationForm)
       toast.success('Station added successfully')
-      setStationForm({ stn_code: '', city: '', stn_name: '' })
+      setStationForm({ stn_code: '', city: '', stn_name: '', state: '' })
     } catch (err) {
       toast.error(err.response?.data?.message || 'Error adding station')
     }
   }
 
-  const handleAddCoach = async (e) => {
+  const handleAddCoachClass = async (e) => {
     e.preventDefault()
     try {
-      await adminAPI.addCoach(coachForm)
-      toast.success('Coach added successfully')
+      await adminAPI.addCoachClass(coachClassForm)
+      toast.success('Coach class added successfully')
+      setCoachClassForm({ class_code: '', class_name: '', total_seats: 72, base_fare_multiplier: 1.70 })
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Error adding coach')
+      toast.error(err.response?.data?.message || 'Error adding coach class')
+    }
+  }
+
+  const handleAddComposition = async (e) => {
+    e.preventDefault()
+    try {
+      await adminAPI.addTrainComposition(compositionForm)
+      toast.success('Train composition added successfully')
+      setCompositionForm({ train_no: '', run_date: '', coach_label: '', class_code: '' })
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error adding train composition')
     }
   }
 
@@ -107,7 +137,8 @@ const AdminDashboardPage = () => {
     { id: 'users', label: 'All Users', icon: 'bi-people' },
     { id: 'addTrain', label: 'Add Train', icon: 'bi-train-front' },
     { id: 'addStation', label: 'Add Station', icon: 'bi-geo-alt' },
-    { id: 'addCoach', label: 'Add Coach', icon: 'bi-layout-three-columns' },
+    { id: 'addCoachClass', label: 'Add Coach Class', icon: 'bi-grid-3x3' },
+    { id: 'addComposition', label: 'Train Composition', icon: 'bi-layout-three-columns' },
     { id: 'addRoute', label: 'Add Route', icon: 'bi-map' },
   ]
 
@@ -133,6 +164,7 @@ const AdminDashboardPage = () => {
 
       {/* Main Content */}
       <div className="flex-grow-1 p-4" style={{ backgroundColor: '#f8f9fa' }}>
+
         {/* Stats Dashboard */}
         {activeTab === 'stats' && (
           <div>
@@ -170,7 +202,9 @@ const AdminDashboardPage = () => {
                       <th>PNR</th>
                       <th>Passenger</th>
                       <th>Train</th>
+                      <th>Route</th>
                       <th>Journey Date</th>
+                      <th>Quota</th>
                       <th>Fare</th>
                       <th>Status</th>
                       <th>Payment</th>
@@ -188,10 +222,14 @@ const AdminDashboardPage = () => {
                           <div>{b.TRAIN_NAME}</div>
                           <small className="text-muted">#{b.TRAIN_NO}</small>
                         </td>
+                        <td>
+                          <small>{b.SOURCE_STN_CODE} → {b.DESTINATION_STN_CODE}</small>
+                        </td>
                         <td>{b.JOURNEY_DATE}</td>
+                        <td><span className="badge bg-secondary">{b.QUOTA}</span></td>
                         <td>₹{b.TOTAL_FARE}</td>
                         <td>
-                          <span className={`badge ${b.STATUS === 'Confirmed' ? 'bg-success' : b.STATUS === 'Cancelled' ? 'bg-danger' : 'bg-warning text-dark'}`}>
+                          <span className={`badge ${b.STATUS === 'Booked' ? 'bg-success' : b.STATUS === 'Cancelled' ? 'bg-danger' : 'bg-warning text-dark'}`}>
                             {b.STATUS}
                           </span>
                         </td>
@@ -258,7 +296,7 @@ const AdminDashboardPage = () => {
               <div className="card-body">
                 <form onSubmit={handleAddTrain}>
                   <div className="mb-3">
-                    <label className="form-label">Train Number</label>
+                    <label className="form-label">Train Number <small className="text-muted">(digits only)</small></label>
                     <input type="text" className="form-control" placeholder="e.g. 12301"
                       value={trainForm.train_no} onChange={(e) => setTrainForm({ ...trainForm, train_no: e.target.value })} required />
                   </div>
@@ -276,6 +314,12 @@ const AdminDashboardPage = () => {
                       ))}
                     </select>
                   </div>
+                  <div className="mb-3">
+                    <label className="form-label">Active Days <small className="text-muted">(7-char binary: MTWTFSS, 1=runs, 0=off)</small></label>
+                    <input type="text" className="form-control" placeholder="e.g. 1111111"
+                      maxLength={7} pattern="[01]{7}"
+                      value={trainForm.active_days} onChange={(e) => setTrainForm({ ...trainForm, active_days: e.target.value })} required />
+                  </div>
                   <button type="submit" className="btn btn-primary w-100">Add Train</button>
                 </form>
               </div>
@@ -291,7 +335,7 @@ const AdminDashboardPage = () => {
               <div className="card-body">
                 <form onSubmit={handleAddStation}>
                   <div className="mb-3">
-                    <label className="form-label">Station Code</label>
+                    <label className="form-label">Station Code <small className="text-muted">(uppercase)</small></label>
                     <input type="text" className="form-control" placeholder="e.g. NDLS"
                       value={stationForm.stn_code} onChange={(e) => setStationForm({ ...stationForm, stn_code: e.target.value.toUpperCase() })} required />
                   </div>
@@ -305,6 +349,11 @@ const AdminDashboardPage = () => {
                     <input type="text" className="form-control" placeholder="e.g. New Delhi Railway Station"
                       value={stationForm.stn_name} onChange={(e) => setStationForm({ ...stationForm, stn_name: e.target.value })} required />
                   </div>
+                  <div className="mb-3">
+                    <label className="form-label">State</label>
+                    <input type="text" className="form-control" placeholder="e.g. Delhi"
+                      value={stationForm.state} onChange={(e) => setStationForm({ ...stationForm, state: e.target.value })} required />
+                  </div>
                   <button type="submit" className="btn btn-primary w-100">Add Station</button>
                 </form>
               </div>
@@ -312,38 +361,81 @@ const AdminDashboardPage = () => {
           </div>
         )}
 
-        {/* Add Coach */}
-        {activeTab === 'addCoach' && (
+        {/* Add Coach Class */}
+        {activeTab === 'addCoachClass' && (
           <div>
-            <h5 className="fw-bold mb-4" style={{ color: '#0a2d6e' }}>Add Coach to Train</h5>
+            <h5 className="fw-bold mb-4" style={{ color: '#0a2d6e' }}>Add Coach Class</h5>
+            <p className="text-muted mb-3" style={{ fontSize: '0.85rem' }}>
+              Coach classes are the static catalog (e.g. 1A, 2A, SL). After adding a class, assign it to a train run using "Train Composition".
+            </p>
             <div className="card" style={{ maxWidth: '500px' }}>
               <div className="card-body">
-                <form onSubmit={handleAddCoach}>
+                <form onSubmit={handleAddCoachClass}>
+                  <div className="mb-3">
+                    <label className="form-label">Class Code <small className="text-muted">(e.g. 1A, 2A, SL)</small></label>
+                    <input type="text" className="form-control" placeholder="e.g. 3A"
+                      value={coachClassForm.class_code} onChange={(e) => setCoachClassForm({ ...coachClassForm, class_code: e.target.value.toUpperCase() })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Class Name</label>
+                    <input type="text" className="form-control" placeholder="e.g. AC 3-Tier"
+                      value={coachClassForm.class_name} onChange={(e) => setCoachClassForm({ ...coachClassForm, class_name: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Total Seats per Coach</label>
+                    <input type="number" className="form-control" min="1"
+                      value={coachClassForm.total_seats} onChange={(e) => setCoachClassForm({ ...coachClassForm, total_seats: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Base Fare Multiplier <small className="text-muted">(₹ per km)</small></label>
+                    <input type="number" className="form-control" step="0.01" min="0.01"
+                      value={coachClassForm.base_fare_multiplier} onChange={(e) => setCoachClassForm({ ...coachClassForm, base_fare_multiplier: e.target.value })} required />
+                  </div>
+                  <button type="submit" className="btn btn-primary w-100">Add Coach Class</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Add Train Composition */}
+        {activeTab === 'addComposition' && (
+          <div>
+            <h5 className="fw-bold mb-4" style={{ color: '#0a2d6e' }}>Add Train Composition</h5>
+            <p className="text-muted mb-3" style={{ fontSize: '0.85rem' }}>
+              Assign a coach (with a class) to a specific train on a specific run date. This creates the seat inventory for that day.
+            </p>
+            <div className="card" style={{ maxWidth: '500px' }}>
+              <div className="card-body">
+                <form onSubmit={handleAddComposition}>
                   <div className="mb-3">
                     <label className="form-label">Train Number</label>
                     <input type="text" className="form-control" placeholder="e.g. 12302"
-                      value={coachForm.train_no} onChange={(e) => setCoachForm({ ...coachForm, train_no: e.target.value })} required />
+                      value={compositionForm.train_no} onChange={(e) => setCompositionForm({ ...compositionForm, train_no: e.target.value })} required />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Coach Label</label>
-                    <input type="text" className="form-control" placeholder="e.g. B3"
-                      value={coachForm.coach_label} onChange={(e) => setCoachForm({ ...coachForm, coach_label: e.target.value })} required />
+                    <label className="form-label">Run Date</label>
+                    <input type="date" className="form-control"
+                      value={compositionForm.run_date} onChange={(e) => setCompositionForm({ ...compositionForm, run_date: e.target.value })} required />
                   </div>
                   <div className="mb-3">
-                    <label className="form-label">Class Type</label>
-                    <select className="form-select" value={coachForm.class_type}
-                      onChange={(e) => setCoachForm({ ...coachForm, class_type: e.target.value })}>
-                      {['AC 1st Class', 'AC 2-Tier', 'AC 3-Tier', 'Sleeper', 'General'].map(c => (
-                        <option key={c} value={c}>{c}</option>
+                    <label className="form-label">Coach Label <small className="text-muted">(e.g. B1, H1)</small></label>
+                    <input type="text" className="form-control" placeholder="e.g. B1"
+                      value={compositionForm.coach_label} onChange={(e) => setCompositionForm({ ...compositionForm, coach_label: e.target.value })} required />
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Class Code</label>
+                    <select className="form-select" value={compositionForm.class_code}
+                      onChange={(e) => setCompositionForm({ ...compositionForm, class_code: e.target.value })} required>
+                      <option value="">Select Class</option>
+                      {coachClasses.map(cc => (
+                        <option key={cc.CLASS_CODE} value={cc.CLASS_CODE}>
+                          {cc.CLASS_CODE} — {cc.CLASS_NAME}
+                        </option>
                       ))}
                     </select>
                   </div>
-                  <div className="mb-3">
-                    <label className="form-label">Total Seats</label>
-                    <input type="number" className="form-control"
-                      value={coachForm.total_seats} onChange={(e) => setCoachForm({ ...coachForm, total_seats: e.target.value })} required />
-                  </div>
-                  <button type="submit" className="btn btn-primary w-100">Add Coach</button>
+                  <button type="submit" className="btn btn-primary w-100">Add Composition</button>
                 </form>
               </div>
             </div>
@@ -354,6 +446,9 @@ const AdminDashboardPage = () => {
         {activeTab === 'addRoute' && (
           <div>
             <h5 className="fw-bold mb-4" style={{ color: '#0a2d6e' }}>Add Route Stop</h5>
+            <p className="text-muted mb-3" style={{ fontSize: '0.85rem' }}>
+              Times are in <strong>minutes since midnight</strong> (0–1439). Example: 08:05 = 485, 16:50 = 1010.
+            </p>
             <div className="card" style={{ maxWidth: '500px' }}>
               <div className="card-body">
                 <form onSubmit={handleAddRoute}>
@@ -369,23 +464,25 @@ const AdminDashboardPage = () => {
                         value={routeForm.stn_code} onChange={(e) => setRouteForm({ ...routeForm, stn_code: e.target.value.toUpperCase() })} required />
                     </div>
                     <div className="col-6">
-                      <label className="form-label">Arrival Time</label>
-                      <input type="text" className="form-control" placeholder="HH:MM:SS"
+                      <label className="form-label">Arrival Time (mins)</label>
+                      <input type="number" className="form-control" placeholder="e.g. 485 (leave blank for origin)"
+                        min="0" max="1439"
                         value={routeForm.arrival_time} onChange={(e) => setRouteForm({ ...routeForm, arrival_time: e.target.value })} />
                     </div>
                     <div className="col-6">
-                      <label className="form-label">Departure Time</label>
-                      <input type="text" className="form-control" placeholder="HH:MM:SS"
+                      <label className="form-label">Departure Time (mins)</label>
+                      <input type="number" className="form-control" placeholder="e.g. 1010 (leave blank for terminus)"
+                        min="0" max="1439"
                         value={routeForm.depart_time} onChange={(e) => setRouteForm({ ...routeForm, depart_time: e.target.value })} />
                     </div>
                     <div className="col-6">
                       <label className="form-label">Sequence Number</label>
-                      <input type="number" className="form-control"
+                      <input type="number" className="form-control" min="1"
                         value={routeForm.sequence_num} onChange={(e) => setRouteForm({ ...routeForm, sequence_num: e.target.value })} required />
                     </div>
                     <div className="col-6">
                       <label className="form-label">Distance from Source (km)</label>
-                      <input type="number" className="form-control"
+                      <input type="number" className="form-control" min="0"
                         value={routeForm.distance_from_source} onChange={(e) => setRouteForm({ ...routeForm, distance_from_source: e.target.value })} />
                     </div>
                     <div className="col-12">

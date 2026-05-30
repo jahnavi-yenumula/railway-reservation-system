@@ -1,8 +1,19 @@
 // Payment Page - dummy payment form
+// Updated for schema v3.0: payment_method values must match constraint:
+//   'UPI', 'Credit Card', 'Debit Card', 'Net Banking', 'Wallet'
 import React, { useState } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { paymentAPI } from '../services/api'
 import { toast } from 'react-toastify'
+
+// These values must exactly match the Oracle CHECK constraint
+const PAYMENT_METHODS = [
+  { value: 'UPI', label: 'UPI', icon: 'bi-phone' },
+  { value: 'Credit Card', label: 'Credit Card', icon: 'bi-credit-card' },
+  { value: 'Debit Card', label: 'Debit Card', icon: 'bi-credit-card-2-front' },
+  { value: 'Net Banking', label: 'Net Banking', icon: 'bi-bank' },
+  { value: 'Wallet', label: 'Wallet', icon: 'bi-wallet' },
+]
 
 const PaymentPage = () => {
   const { pnr } = useParams()
@@ -24,8 +35,8 @@ const PaymentPage = () => {
       toast.error('Please enter UPI ID')
       return
     }
-    if (paymentMethod === 'Card' && cardNumber.length < 16) {
-      toast.error('Please enter valid card number')
+    if ((paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card') && cardNumber.length < 16) {
+      toast.error('Please enter valid 16-digit card number')
       return
     }
 
@@ -33,7 +44,7 @@ const PaymentPage = () => {
     try {
       const res = await paymentAPI.pay({
         pnr,
-        paymentMethod,
+        paymentMethod,   // exact value matching Oracle constraint
         amount: totalFare,
       })
 
@@ -65,18 +76,15 @@ const PaymentPage = () => {
               <form onSubmit={handlePayment}>
                 {/* Payment Method Tabs */}
                 <div className="d-flex gap-2 mb-4 flex-wrap">
-                  {['UPI', 'Card', 'Net Banking', 'Wallet'].map(method => (
+                  {PAYMENT_METHODS.map(method => (
                     <button
-                      key={method}
+                      key={method.value}
                       type="button"
-                      className={`btn btn-sm ${paymentMethod === method ? 'btn-primary' : 'btn-outline-secondary'}`}
-                      onClick={() => setPaymentMethod(method)}
+                      className={`btn btn-sm ${paymentMethod === method.value ? 'btn-primary' : 'btn-outline-secondary'}`}
+                      onClick={() => setPaymentMethod(method.value)}
                     >
-                      {method === 'UPI' && <i className="bi bi-phone me-1"></i>}
-                      {method === 'Card' && <i className="bi bi-credit-card me-1"></i>}
-                      {method === 'Net Banking' && <i className="bi bi-bank me-1"></i>}
-                      {method === 'Wallet' && <i className="bi bi-wallet me-1"></i>}
-                      {method}
+                      <i className={`bi ${method.icon} me-1`}></i>
+                      {method.label}
                     </button>
                   ))}
                 </div>
@@ -84,7 +92,7 @@ const PaymentPage = () => {
                 {/* UPI Form */}
                 {paymentMethod === 'UPI' && (
                   <div className="mb-4">
-                    <label className="form-label fw-500">UPI ID</label>
+                    <label className="form-label">UPI ID</label>
                     <input
                       type="text"
                       className="form-control"
@@ -102,8 +110,8 @@ const PaymentPage = () => {
                   </div>
                 )}
 
-                {/* Card Form */}
-                {paymentMethod === 'Card' && (
+                {/* Credit / Debit Card Form */}
+                {(paymentMethod === 'Credit Card' || paymentMethod === 'Debit Card') && (
                   <div className="mb-4">
                     <div className="mb-3">
                       <label className="form-label">Card Number</label>
@@ -204,7 +212,7 @@ const PaymentPage = () => {
                 <div className="text-muted" style={{ fontSize: '0.8rem' }}>Passengers ({passengers.length})</div>
                 {passengers.map((p, i) => (
                   <div key={i} style={{ fontSize: '0.85rem' }}>
-                    {p.passenger_name}, {p.passenger_age} yrs
+                    {p.passenger_name}, {p.passenger_age} yrs, {p.passenger_gender}
                   </div>
                 ))}
               </div>

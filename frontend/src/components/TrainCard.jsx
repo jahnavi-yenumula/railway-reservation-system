@@ -1,11 +1,12 @@
 // Train Card - shown in search results
+// Updated for schema v3.0: coaches are train_composition rows with CLASS_CODE/CLASS_NAME
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const TrainCard = ({ train, searchDate, fromCode, toCode }) => {
   const navigate = useNavigate()
 
-  // Calculate total available seats across all coaches
+  // Calculate total available seats across all compositions
   const totalAvailable = train.coaches?.reduce((sum, c) => sum + (c.AVAILABLE_SEATS || 0), 0) || 0
 
   const handleBook = () => {
@@ -33,7 +34,7 @@ const TrainCard = ({ train, searchDate, fromCode, toCode }) => {
 
           {/* Departure */}
           <div className="col-md-2 text-center">
-            <div className="time-display">{train.DEPARTURE_TIME?.slice(0, 5) || '--:--'}</div>
+            <div className="time-display">{train.DEPARTURE_TIME || '--:--'}</div>
             <div className="station-name">{train.FROM_CODE}</div>
             <div style={{ fontSize: '0.75rem', color: '#6c757d' }}>{train.FROM_CITY}</div>
           </div>
@@ -52,12 +53,12 @@ const TrainCard = ({ train, searchDate, fromCode, toCode }) => {
 
           {/* Arrival */}
           <div className="col-md-2 text-center">
-            <div className="time-display">{train.ARRIVAL_TIME?.slice(0, 5) || '--:--'}</div>
+            <div className="time-display">{train.ARRIVAL_TIME || '--:--'}</div>
             <div className="station-name">{train.TO_CODE}</div>
             <div style={{ fontSize: '0.75rem', color: '#6c757d' }}>{train.TO_CITY}</div>
           </div>
 
-          {/* Availability */}
+          {/* Availability — show class codes from train_composition */}
           <div className="col-md-2 text-center">
             <div style={{ fontSize: '0.85rem', fontWeight: '600' }}>
               {totalAvailable > 0 ? (
@@ -72,11 +73,11 @@ const TrainCard = ({ train, searchDate, fromCode, toCode }) => {
                 </span>
               )}
             </div>
-            {/* Show class types */}
+            {/* Show unique class codes */}
             <div className="mt-1">
-              {train.coaches?.map((c) => (
-                <span key={c.COACH_ID} className="badge bg-light text-dark me-1" style={{ fontSize: '0.65rem' }}>
-                  {c.CLASS_TYPE}
+              {[...new Set(train.coaches?.map(c => c.CLASS_CODE))].map((code) => (
+                <span key={code} className="badge bg-light text-dark me-1" style={{ fontSize: '0.65rem' }}>
+                  {code}
                 </span>
               ))}
             </div>

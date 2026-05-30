@@ -79,7 +79,7 @@ const TrainDetailsPage = () => {
                           {stop.STN_NAME}
                         </div>
                         <div className="text-muted" style={{ fontSize: '0.8rem' }}>
-                          {stop.STN_CODE} • {stop.CITY}
+                          {stop.STN_CODE} • {stop.CITY}{stop.STATE ? `, ${stop.STATE}` : ''}
                         </div>
                         {stop.DISTANCE_FROM_SOURCE > 0 && (
                           <div style={{ fontSize: '0.75rem', color: '#6c757d' }}>
@@ -122,14 +122,19 @@ const TrainDetailsPage = () => {
               <i className="bi bi-layout-three-columns me-2"></i>Coach Information
             </div>
             <div className="card-body">
-              {coaches.map(coach => (
-                <div key={coach.COACH_ID} className="d-flex justify-content-between align-items-center border-bottom py-2">
+              {coaches.length === 0 ? (
+                <div className="text-muted">No coach class info available.</div>
+              ) : coaches.map(coach => (
+                <div key={coach.CLASS_CODE} className="d-flex justify-content-between align-items-center border-bottom py-2">
                   <div>
-                    <span className="fw-bold me-2">{coach.COACH_LABEL}</span>
-                    <span className="badge bg-light text-dark border">{coach.CLASS_TYPE}</span>
+                    <span className="fw-bold me-2">{coach.CLASS_CODE}</span>
+                    <span className="badge bg-light text-dark border">{coach.CLASS_NAME}</span>
                   </div>
                   <div className="text-muted" style={{ fontSize: '0.85rem' }}>
                     <i className="bi bi-person me-1"></i>{coach.TOTAL_SEATS} seats
+                    <span className="ms-2 text-success" style={{ fontSize: '0.75rem' }}>
+                      ₹{coach.BASE_FARE_MULTIPLIER}/km
+                    </span>
                   </div>
                 </div>
               ))}
@@ -154,7 +159,7 @@ const TrainDetailsPage = () => {
               </div>
               <div className="d-flex justify-content-between">
                 <span className="text-muted">Total Seats</span>
-                <strong>{coaches.reduce((s, c) => s + c.TOTAL_SEATS, 0)}</strong>
+                <strong>{coaches.reduce((s, c) => s + (c.TOTAL_SEATS || 0), 0)}</strong>
               </div>
             </div>
           </div>

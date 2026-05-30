@@ -4,7 +4,18 @@ import { userAPI } from '../services/api'
 import { toast } from 'react-toastify'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const emptyForm = { name: '', age: '', gender: 'Male', preferred_berth: 'No Preference' }
+// Berth codes match Oracle CHECK constraint: 'LB','MB','UB','SL','SU','WS'
+const BERTH_OPTIONS = [
+  { value: '', label: 'No Preference' },
+  { value: 'LB', label: 'Lower Berth (LB)' },
+  { value: 'MB', label: 'Middle Berth (MB)' },
+  { value: 'UB', label: 'Upper Berth (UB)' },
+  { value: 'SL', label: 'Side Lower (SL)' },
+  { value: 'SU', label: 'Side Upper (SU)' },
+  { value: 'WS', label: 'Window Side (WS)' },
+]
+
+const emptyForm = { name: '', age: '', gender: 'Male', preferred_berth: '' }
 
 const SavedPassengersPage = () => {
   const [passengers, setPassengers] = useState([])
@@ -56,7 +67,7 @@ const SavedPassengersPage = () => {
       name: p.NAME,
       age: p.AGE,
       gender: p.GENDER,
-      preferred_berth: p.PREFERRED_BERTH || 'No Preference',
+      preferred_berth: p.PREFERRED_BERTH || '',
     })
     setEditingId(p.MSTR_PASS_ID)
     setShowForm(true)
@@ -139,8 +150,8 @@ const SavedPassengersPage = () => {
                     value={form.preferred_berth}
                     onChange={(e) => setForm({ ...form, preferred_berth: e.target.value })}
                   >
-                    {['Lower', 'Middle', 'Upper', 'Side Lower', 'Side Upper', 'No Preference'].map(b => (
-                      <option key={b} value={b}>{b}</option>
+                    {BERTH_OPTIONS.map(b => (
+                      <option key={b.value} value={b.value}>{b.label}</option>
                     ))}
                   </select>
                 </div>
